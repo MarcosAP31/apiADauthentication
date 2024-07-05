@@ -1,0 +1,50 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ADRepository = void 0;
+const msal = require('@azure/msal-node');
+const { msalConfig } = require('../authConfig');
+const crypto = require('crypto');
+const cca = new msal.ConfidentialClientApplication(msalConfig);
+class ADRepository {
+    // Function to fetch file content from URL
+    login(authCodeUrlParameters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const authCodeUrl = yield cca.getAuthCodeUrl(authCodeUrlParameters);
+                return authCodeUrl;
+                //res.redirect(response);
+            }
+            catch (error) {
+                console.error('Error initiating login:', error);
+                throw new Error(`Error initiating login: ${error}`);
+                //res.status(500).json({ error: 'Error initiating login' });
+            }
+        });
+    }
+    // Function to authorize Google Drive API
+    redirect(tokenRequest) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield cca.acquireTokenByCode(tokenRequest);
+                // Aquí puedes devolver las credenciales o token a tu cliente
+                return response;
+                //res.json(response);
+            }
+            catch (error) {
+                console.error('Error acquiring token:', error);
+                throw new Error(`Error acquiring token ${error}`);
+                //res.status(500).json({ error: 'Error acquiring token' });
+            }
+        });
+    }
+}
+exports.ADRepository = ADRepository;
