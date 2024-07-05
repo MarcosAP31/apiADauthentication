@@ -8,6 +8,7 @@ const IndexRoutes_1 = __importDefault(require("./Routes/IndexRoutes"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const ADRoutes_1 = __importDefault(require("./Routes/ADRoutes"));
 const express_session_1 = __importDefault(require("express-session")); // Importa express-session
+require('dotenv').config();
 //import getMessagesByConversationId from './controllers/messageController';
 const http = require('http');
 // Aquí debes insertar el secreto generado aleatoriamente
