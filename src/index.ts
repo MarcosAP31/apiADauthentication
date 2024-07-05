@@ -3,6 +3,7 @@ import indexRoutes from './Routes/IndexRoutes';
 import bodyParser from 'body-parser';
 import adRoutes from './Routes/ADRoutes';
 import session from 'express-session';  // Importa express-session
+require('dotenv').config();
 
 //import getMessagesByConversationId from './controllers/messageController';
 
