@@ -1,0 +1,73 @@
+# Node.js with Angular
+# Build a Node.js project that uses Angular.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+  branches:
+    include:
+      - main
+      - production-branch
+      - qa-branch
+
+variables:
+  - name: appName
+    value: ''
+  - ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+      - group: CMPDEV-APS-development-variables
+  - ${{ if eq(variables['Build.SourceBranchName'], 'production-branch') }}:
+      - group: CMPPRD-APS-production-variables
+
+pool:
+  name: 'Windows pool DEV'
+
+steps:
+# - task: NodeTool@0
+#   inputs:
+#     versionSpec: '20.x'
+#   displayName: 'Install Node.js'
+
+- task: Docker@2
+  inputs:
+    command: 'login'
+    containerRegistry: 'acrServiceConnection'
+    displayName: 'ACR Login'
+
+# - script: |
+#     docker pull cmprg1citacr001.azurecr.io/test:v7
+#   displayName: 'Docker Pull v7'
+
+- task: Docker@2
+  inputs:
+    repository: 'apiadauthentication'
+    command: 'build'
+    Dockerfile: 'Dockerfile'  # Asegúrate de tener un Dockerfile en la ubicación correcta
+    tags: '$(Build.BuildId)'
+    displayName: 'Docker Build'
+
+- task: Docker@2
+  inputs:
+    repository: 'apiadauthentication'
+    command: 'push'
+    tags: '$(Build.BuildId)'
+    displayName: 'Docker Push'
+
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: '$(appServiceConnection)'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      appName="CMPDEV-APS-MON005"
+      if [ $(Build.SourceBranchName) == "main" ]; then
+        appName="CMPDEV-APS-PER001"
+      elif [ $(Build.SourceBranchName) == "production-branch" ]; then
+        appName="CMPPRD-APS-PER001"
+      elif [ $(Build.SourceBranchName) == "qa-branch" ]; then
+        appName="CMPDEV-APS-PER001"
+      fi
+      az webapp config container set --name $appName --resource-group '$(resourceGroup)' --docker-custom-image-name 'cmprg1citacr001.azurecr.io/apiadauthentication:$(Build.BuildId)' --docker-registry-server-url 'https://cmprg1citacr001.azurecr.io' --docker-registry-server-user 'cmprg1citacr001' --docker-registry-server-password '+pe/X4Tt+dwTqWsn5v3l60P8HyjE+rf8sSHzj9loOj+ACRAa7SCq'
+      az webapp restart --name $appName --resource-group '$(resourceGroup)'
+
+  displayName: 'Azure Web App Container Deploy'

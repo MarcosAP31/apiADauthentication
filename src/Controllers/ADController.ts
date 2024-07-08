@@ -36,7 +36,7 @@ class ADController {
             groupId = groupid;
             const authCodeUrlParameters = {
                 scopes: ['openid', 'profile', 'user.read'],
-                redirectUri: 'http://localhost:3000/api/ad/validate', // URL donde Azure AD redirigirá después de la autenticación
+                redirectUri: 'https://cmpdev-aps-per001.azurewebsites.net/api/ad/validate', // URL donde Azure AD redirigirá después de la autenticación
                 codeChallenge: codeChallenge,
                 codeChallengeMethod: "S256"
             };
@@ -52,7 +52,7 @@ class ADController {
             const tokenRequest = {
                 code: req.query.code,
                 scopes: ['openid', 'profile', 'user.read'],
-                redirectUri: 'http://localhost:3000/api/ad/redirect', // Debe coincidir con el valor configurado en Azure AD
+                redirectUri: 'https://cmpdev-aps-per001.azurewebsites.net/api/ad/redirect', // Debe coincidir con el valor configurado en Azure AD
                 codeVerifier: codeVerifier
             };
             const response = await this.ADService.redirect(tokenRequest);
@@ -93,7 +93,7 @@ class ADController {
             const tokenRequest = {
                 code: req.query.code,
                 scopes: ['openid', 'profile', 'user.read'],
-                redirectUri: 'http://localhost:3000/api/ad/validate', // Debe coincidir con el valor configurado en Azure AD
+                redirectUri: 'https://cmpdev-aps-per001.azurewebsites.net/api/ad/validate', // Debe coincidir con el valor configurado en Azure AD
                 codeVerifier: codeVerifier
             };
             const response = await this.ADService.redirect(tokenRequest);
@@ -210,8 +210,10 @@ class ADController {
                             foundMatch = true; // Marcar que se encontró una coincidencia
                             console.log(subg.id);
                             return res.json({
+                                groupId:groupid,
+                                groupDescription:resp.data.displayName,
                                 subGroupId: subg.id,
-                                description: subg.description
+                                subgroupDescription: subg.description
                             })
                         }
                         if (subg.description == "Grupo de usuarios area Data") {
